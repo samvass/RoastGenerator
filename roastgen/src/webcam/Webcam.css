@@ -13,3 +13,20 @@
     margin-top: 10px;
     cursor: pointer;
 }
+
+/* Webcam.css */
+.webcam-container {
+    position: relative; /* Ensure relative positioning for the container */
+  }
+  
+.overlay {
+position: absolute; /* Position the overlay relative to its closest positioned ancestor (the container) */
+top: 35px;
+left: 20;
+}
+
+.overlay img{
+    height: 400px;
+    width: 250px;
+}
+  
