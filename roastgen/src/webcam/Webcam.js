@@ -1,40 +1,26 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Webcam from 'react-webcam';
-import html2canvas from 'html2canvas';
-import download from 'downloadjs';
-import { BsCamera } from 'react-icons/bs'; 
+import { BsCamera } from 'react-icons/bs';
+import axios from 'axios'; // Import axios
 import "./Webcam.css"
 
 import faceOutline from './overlay.png'; // Import the outline image
 
 const WebcamCapture = () => {
   const webcamRef = useRef(null);
-  const [capturedImage, setCapturedImage] = useState(null);
 
   const capture = async () => {
     const imageSrc = webcamRef.current.getScreenshot();
-    setCapturedImage(imageSrc);
-  };
 
-  const saveImage = () => {
-    // if (capturedImage) {
-    //   html2canvas(document.querySelector('#capture')).then((canvas) => {
-    //     const ctx = canvas.getContext('2d');
-    //     const image = new Image();
-    //     image.src = capturedImage;
+    try {
+      // Send the captured image to the backend
+      console.log("WORK??")
+      const response = await axios.post('http://127.0.0.1:5000/api/upload', { image: imageSrc });
+      console.log('Image uploaded successfully:', response.data);
 
-    //     // Draw the captured image on the canvas
-    //     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-    //     // Draw the outline on top of the captured image
-    //     const outline = new Image();
-    //     outline.src = faceOutline;
-    //     ctx.drawImage(outline, 0, 0, canvas.width, canvas.height);
-
-    //     // Save the canvas as an image
-    //     download(canvas.toDataURL(), 'captured-image.png');
-    //   });
-    // }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   return (
@@ -48,12 +34,6 @@ const WebcamCapture = () => {
         <img src={faceOutline} alt="Outline" />
       </div>
       <button onClick={capture} id='capture-button'><BsCamera size={30}/></button>
-      {/* {capturedImage && (
-        <div id="capture">
-          <img src={capturedImage} alt="Captured" />
-          <button onClick={saveImage}>{BsCamera}</button>
-        </div>
-      )} */}
     </div>
   );
 };
