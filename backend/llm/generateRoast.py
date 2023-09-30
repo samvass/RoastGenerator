@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
+from dotenv import load_dotenv
 import os
 import openai
-import requests
 
 app = Flask(__name__)
-# openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = "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"
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/')
 def test():
@@ -16,7 +16,6 @@ def test():
 def generate_text():
     # Get the input data (list of human features) from the React app
     data = request.json
-    print(data)
 
     # Construct the prompt for the language model
     prompt = "Generate a roast style joke of a human face with the following features in the second person:\n"
