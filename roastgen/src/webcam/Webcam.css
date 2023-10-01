@@ -12,6 +12,20 @@
     background-color: whitesmoke;
     margin-top: 10px;
     cursor: pointer;
+    border-radius: 20px;
+    padding: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#reset-button {
+    background-color: whitesmoke;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 20px;
+    padding: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 /* Webcam.css */
