@@ -7,6 +7,12 @@ import base64
 import re
 from PIL import Image
 from io import BytesIO
+import sys
+import torch
+from PIL import Image
+import torchvision.transforms as transforms
+import numpy as np
+import pandas as pd
 
 
 UPLOAD_FOLDER = 'uploads'
@@ -17,6 +23,26 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 CORS(app)
+
+#input: numpy arr of predicted labels
+def get_label_names(bin_label_tensor):
+    df = pd.read_csv('../Model/attributes.csv')
+    attr_arr = df.columns.values[1:]
+    #print(attr_arr)
+    attr_indices = torch.nonzero(bin_label_tensor == 1).tolist()
+    attr_indices = [x[1] for x in attr_indices]
+    print(attr_indices)
+    predicted_attributes = [attr_arr[i] for i in attr_indices]
+    print(predicted_attributes)
+    return predicted_attributes
+
+def pre_process_image(img_path):
+    image = Image.open(img_path)
+
+    transform = transforms.Compose([transforms.ToTensor()])
+    image = transform(image)
+    image = image.unsqueeze(0)
+    return image
 
 def data_url_to_image(data_url):
     # Parse the data URL using regular expressions
@@ -34,7 +60,7 @@ def data_url_to_image(data_url):
         save_path = "images/captured_image.jpg"
         image.save(save_path)
 
-        return image
+        return save_path
 
     else:
         raise ValueError("Invalid data URL format")
@@ -44,14 +70,13 @@ def test():
     return 'Hello, World!'
 
 
-@app.route('/generate', methods=['POST'])
-def generate_text():
+#@app.route('/generate', methods=['POST'])
+def generate_text(features):
     # Get the input data (list of human features) from the React app
-    data = request.json
 
     # Construct the prompt for the language model
     prompt = "Generate a roast style joke of a human face with the following features in the second person:\n"
-    for feature in data['features']:
+    for feature in features:
         prompt += f"- {feature}\n"
 
     # Call the OpenAI API to generate the description
@@ -66,11 +91,37 @@ def work():
 
 @app.route('/api/upload', methods=['POST'])
 def upload_image():
-    print("WORK")
-    data = request.json['image']
-    data_url_to_image(data)
 
-    return "worked"
+    data = request.json['image']
+    image_path = data_url_to_image(data)
+
+    # open model
+    model = torch.load('../Model/model.pth')
+
+    model.eval()
+
+    # pre process input image
+    img = pre_process_image(image_path)
+
+    with torch.no_grad():
+        output = model(img).data
+        output = torch.abs(output) / 10
+        print(output)
+        threshold = 0.8
+        output_binary = torch.where(output >= threshold, torch.tensor(1), torch.tensor(0))
+        
+        print(output_binary)
+        predicted_attributes = get_label_names(output_binary)
+        output_text = generate_text(predicted_attributes)
+        print(output_text)
+
+        response_data = {
+            "result": "success",
+            "output_text": output_text
+        }
+
+        # Convert the response data to JSON and send it as the HTTP response
+        return jsonify(response_data)
 
     # # Check if a file was provided in the request
     # if 'image' not in request.files:

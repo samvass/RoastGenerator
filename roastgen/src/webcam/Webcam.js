@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas'; // Import html2canvas
 
 import faceOutline from './overlay.png'; // Import the outline image
 
-const WebcamCapture = () => {
+const WebcamCapture = (props) => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null)
 
@@ -38,8 +38,8 @@ const WebcamCapture = () => {
     try {
       // Send the captured image to the backend
       const response = await axios.post('http://127.0.0.1:5000/api/upload', { image: imageSrc });
+      props.setGeneratedText(response.data.output_text)
       console.log('Image uploaded successfully:', response.data);
-
     } catch (error) {
       console.error('Error uploading image:', error);
     }
