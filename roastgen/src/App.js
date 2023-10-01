@@ -6,15 +6,14 @@ import { useState } from 'react';
 function App() {
   const [generatedText, setGeneratedText] = useState('');
 
-  const setText = (text) => {
-    console.log(text)
-  }
-
     return (
       <div className='app-container'>
         <h1>Roast your friends, blame AI</h1>
-        <WebcamCapture setText={setText} setGeneratedText={setGeneratedText}  />
-          {generatedText}
+        <WebcamCapture setGeneratedText={setGeneratedText}  />
+          
+          {generatedText && <div style={{margin: '80px', fontSize: "30px", fontWeight: "500", backgroundColor: 'white', borderRadius: '20px', padding: '80px'}}>
+            {generatedText}
+          </div>}
       </div>
     );
   }

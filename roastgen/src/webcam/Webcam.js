@@ -64,7 +64,10 @@ const WebcamCapture = (props) => {
           <img src={capturedImage} alt="Captured" />
         </div>
       )}
-      {capturedImage && <button onClick={() => setCapturedImage(false)} id='reset-button'><GrPowerReset size={30}/></button>}
+      {capturedImage && <button onClick={() => {
+        setCapturedImage(false)
+        props.setGeneratedText('')
+        }} id='reset-button'><GrPowerReset size={30}/></button>}
       
     </div>
   );

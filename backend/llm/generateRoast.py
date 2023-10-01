@@ -26,7 +26,7 @@ CORS(app)
 
 #input: numpy arr of predicted labels
 def get_label_names(bin_label_tensor):
-    df = pd.read_csv('../Model/attributes.csv')
+    df = pd.read_csv('../Model/Data/attributes.csv')
     attr_arr = df.columns.values[1:]
     #print(attr_arr)
     attr_indices = torch.nonzero(bin_label_tensor == 1).tolist()
@@ -39,7 +39,7 @@ def get_label_names(bin_label_tensor):
 def pre_process_image(img_path):
     image = Image.open(img_path)
 
-    transform = transforms.Compose([transforms.ToTensor()])
+    transform = transforms.Compose([transforms.CenterCrop((178,218)), transforms.ToTensor()])
     image = transform(image)
     image = image.unsqueeze(0)
     return image
@@ -96,7 +96,7 @@ def upload_image():
     image_path = data_url_to_image(data)
 
     # open model
-    model = torch.load('../Model/model.pth')
+    model = torch.load('../Model/model_good.pth')
 
     model.eval()
 
@@ -105,9 +105,8 @@ def upload_image():
 
     with torch.no_grad():
         output = model(img).data
-        output = torch.abs(output) / 10
         print(output)
-        threshold = 0.8
+        threshold = 0.3
         output_binary = torch.where(output >= threshold, torch.tensor(1), torch.tensor(0))
         
         print(output_binary)
